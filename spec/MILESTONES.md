@@ -148,7 +148,7 @@
   - `/api/question` responses are never served from the cache. A question request while online always reaches the server.
   - After a new build, the app picks up the new version on the next visit; the service worker does not keep serving stale pages indefinitely.
 
-## Milestone 5 — Production release
+## Milestone 5 — Production release 🟡
 - **Purpose:** Turn on the live site and automatic deployment, configure the Production environment, and verify the complete product on the live site.
 - **Implementation scope:**
   - **User setup (guided):**
