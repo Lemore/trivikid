@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Design tokens from spec/DESIGN.md */
+@theme {
+  --font-sans: var(--font-rubik), system-ui, "Segoe UI", Arial, sans-serif;
+
+  --color-block-blue: #016fb7;
+  --color-block-blue-dark: #01558c;
+  --color-block-green: #1a9949;
+  --color-block-red: #e52d20;
+  --color-block-purple: #744597;
+  --color-block-yellow: #fbd90b;
+  --color-block-orange: #fa8417;
+  --color-block-pink: #f96b9b;
+  --color-sky-blue: #90d3e6;
+  --color-sky-blue-dark: #6fb4c8;
+  --color-wood-light: #fbf1e2;
+  --color-wood-tan: #e4cdb5;
+  --color-ink: #2b2b2e;
+
+  /* Feedback tints (used from Milestone 2) */
+  --color-success-bg: #e6f5ec;
+  --color-success-ink: #11733a;
+  --color-error-bg: #fde9e7;
+  --color-error-ink: #b3241a;
+  --color-fact-bg: #fff7cc;
+
+  --radius-tile: 5px;
+  --radius-option: 12px;
+  --radius-control: 14px;
+  --radius-card: 20px;
+
+  /* Hard "wooden block" bottom shadows and a soft warm shadow */
+  --shadow-block-blue: 0 5px 0 var(--color-block-blue-dark);
+  --shadow-block-tan: 0 5px 0 var(--color-wood-tan);
+  --shadow-block-sky: 0 3px 0 var(--color-sky-blue-dark);
+  --shadow-soft: 0 6px 18px rgba(120, 80, 40, 0.12);
+  --drop-shadow-soft: 0 10px 14px rgba(120, 80, 40, 0.22);
+}
+
+body {
+  background-color: var(--color-wood-light);
+  /* Subtle horizontal wood-grain lines */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 6px,
+    rgba(150, 105, 60, 0.05) 6px,
+    rgba(150, 105, 60, 0.05) 7px
+  );
+  color: var(--color-ink);
+}

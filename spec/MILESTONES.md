@@ -22,7 +22,7 @@
 
 ---
 
-## Milestone 1 — Project setup: the app runs locally, with the Home and About screens
+## Milestone 1 — Project setup: the app runs locally, with the Home and About screens ✅
 - **Purpose:** Establish the project and the design system, and deliver the first two complete screens.
 - **Implementation scope:**
   - **Project:** Next.js 16 (App Router) + TypeScript + Tailwind CSS, with Vitest configured. The GitHub repository already exists (`github.com/Lemore/trivikid`).

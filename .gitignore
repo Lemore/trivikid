@@ -80,3 +80,9 @@ desktop.ini
 tmp/
 temp/
 *.tmp
+
+# --- Next.js ---
+next-env.d.ts
+
+# --- Next.js ---
+next-env.d.ts
