@@ -127,7 +127,7 @@
   - All user-facing messages are in Hebrew and use the DESIGN.md feedback styles.
   - All unit tests pass, and `npm run build` succeeds.
 
-## Milestone 4 — Installable PWA
+## Milestone 4 — Installable PWA ✅
 - **Purpose:** Let the child install טריוויקיד on the home screen and open it like an app, including a friendly experience when offline.
 - **Implementation scope:**
   - **`app/manifest.ts`:**

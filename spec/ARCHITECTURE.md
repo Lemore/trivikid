@@ -243,3 +243,13 @@ There is no database, so the only per-environment configuration is environment v
 **Context:** The PRD requires a friendly no-connection message, but `navigator.onLine` is not always reliable.
 **Decision:** The client shows the no-connection message when `navigator.onLine` is false (no request is sent) and also when `fetch` fails without any response (network error, server unreachable). A client timeout (60s, via `AbortController`) and any HTTP error response show the generic error message.
 **Consequences:** Offline cases are covered even when the browser wrongly reports being online. If the server itself is unreachable while the internet works, the child sees the no-connection message, which still asks them to try again.
+
+### ADR-4: Service worker only in production builds
+**Context:** A service worker that caches pages and scripts would serve stale files during development, where `npm run dev` rebuilds them on every change.
+**Decision:** `components/ServiceWorkerRegistration.tsx` registers `/sw.js` only when `NODE_ENV` is `production`. PWA checks run on a production build locally (`npm run build`, then `npm start`; Chrome treats `localhost` as secure, so installation works without HTTPS).
+**Consequences:** Development is unaffected by caching. Offline behavior and installation can only be checked on a production run or on the live site.
+
+### ADR-5: Precache list read from the pages' HTML
+**Context:** The hand-written service worker has no build-time list of the hashed files each page needs, but an installed app opened offline needs all of them (scripts, CSS, fonts and the Home picture).
+**Decision:** On install, the service worker fetches the three prerendered pages and caches every `/_next/static/…` and `/_next/image?…` URL named in their HTML (optimized-image widths above 1200px are skipped), plus the font files named in the CSS. Pages are network-first, hashed files are cache-first, cached responses are matched by URL only (`ignoreVary`), and `/api/*` and in-app navigation data (RSC requests) are never intercepted. `CACHE_VERSION` in `sw.js` is bumped by hand only when the worker's own logic changes; activation then deletes the old caches.
+**Consequences:** No build step or PWA library is needed. Online, the app always shows the newest build, because pages come from the network first and new hashed files are fetched on first use. Files from older builds stay in the cache until `CACHE_VERSION` changes; for an app this small, that is acceptable.

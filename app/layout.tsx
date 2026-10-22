@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { strings } from "@/lib/strings";
 import "./globals.css";
 
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
     template: `%s · ${strings.appName}`,
   },
   description: strings.home.description,
+  appleWebApp: {
+    capable: true,
+    title: strings.appName,
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
@@ -30,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 sm:px-5">
           {children}
         </div>
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

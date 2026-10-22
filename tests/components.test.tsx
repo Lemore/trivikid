@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { BlockButton } from "@/components/BlockButton";
 import { LetterBlocksTitle } from "@/components/LetterBlocksTitle";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { TopBar } from "@/components/TopBar";
 import { strings } from "@/lib/strings";
 
@@ -40,5 +41,18 @@ describe("BlockButton", () => {
   test("renders a disabled button when disabled", () => {
     render(<BlockButton disabled>טוען…</BlockButton>);
     expect(screen.getByRole("button", { name: "טוען…" })).toBeDisabled();
+  });
+});
+
+describe("ServiceWorkerRegistration", () => {
+  test("does not register the service worker outside production", () => {
+    const register = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "serviceWorker", {
+      value: { register },
+      configurable: true,
+    });
+    const { container } = render(<ServiceWorkerRegistration />);
+    expect(container).toBeEmptyDOMElement();
+    expect(register).not.toHaveBeenCalled();
   });
 });

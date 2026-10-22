@@ -58,4 +58,5 @@ Progress marks, next to the milestone title in MILESTONES.md: no mark = not buil
 ## Run commands
 > Claude fills these in as soon as the app can run (normally at the end of Milestone 1), and updates them if they change.
 - **Run (dev):** `npm run dev` (then open http://localhost:3000)
+- **Run (production, for PWA / offline checks):** `npm run build` then `npm start` (then open http://localhost:3000; the service worker runs only here, not in dev)
 - **Test:** `npm test`
