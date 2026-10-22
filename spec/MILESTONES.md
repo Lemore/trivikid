@@ -90,7 +90,7 @@
   - The OpenAI API key never appears in the browser: it is not in the page source, the JavaScript bundles or the network responses.
   - Unit tests pass, and `npm run build` succeeds.
 
-## Milestone 3 — Question rules, child safety, and error handling
+## Milestone 3 — Question rules, child safety, and error handling ✅
 - **Purpose:** Complete the PRD's business rules and edge cases so the game behaves correctly and kindly in every situation.
 - **Implementation scope:**
   - **No repeats within a visit:**

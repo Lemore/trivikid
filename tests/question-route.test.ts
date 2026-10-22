@@ -49,6 +49,14 @@ describe("POST /api/question", () => {
     expect(parseMock).not.toHaveBeenCalled();
   });
 
+  test("returns 400 for too many previous questions or extra fields", async () => {
+    const many = Array.from({ length: 31 }, (_, i) => `שאלה ${i}?`);
+    expect((await post({ topic: "חלל", previousQuestions: many })).status).toBe(400);
+    expect((await post({ topic: "חלל", previousQuestions: ["א".repeat(301)] })).status).toBe(400);
+    expect((await post({ topic: "חלל", extra: true })).status).toBe(400);
+    expect(parseMock).not.toHaveBeenCalled();
+  });
+
   test("returns a shuffled question with a correct index", async () => {
     parseMock.mockResolvedValue(aiResponse(validAi));
     const response = await post({ topic: "חלל" });
@@ -90,6 +98,54 @@ describe("POST /api/question", () => {
       .mockResolvedValueOnce(aiResponse(null))
       .mockResolvedValueOnce({ status: "incomplete", output_parsed: validAi });
     expect((await post({ topic: "חלל" })).status).toBe(502);
+  });
+
+  test("retries once on a duplicate question, then returns the new one", async () => {
+    const fresh = { ...validAi, question: "כמה ירחים יש למאדים?" };
+    parseMock
+      .mockResolvedValueOnce(aiResponse(validAi))
+      .mockResolvedValueOnce(aiResponse(fresh));
+    const response = await post({ topic: "חלל", previousQuestions: ["איזה כוכב לכת הוא הגדול ביותר"] });
+    const data = await response.json();
+    expect(response.status).toBe(200);
+    expect(data.question).toBe(fresh.question);
+    expect(parseMock).toHaveBeenCalledTimes(2);
+  });
+
+  test("returns no_new_question when the retry is also a duplicate", async () => {
+    parseMock.mockResolvedValue(aiResponse(validAi));
+    const response = await post({ topic: "חלל", previousQuestions: [validAi.question] });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "no_new_question" });
+    expect(parseMock).toHaveBeenCalledTimes(2);
+  });
+
+  test("returns 502 when a duplicate is followed by an invalid result", async () => {
+    parseMock
+      .mockResolvedValueOnce(aiResponse(validAi))
+      .mockResolvedValueOnce(aiResponse({ ...validAi, options: [] }));
+    const response = await post({ topic: "חלל", previousQuestions: [validAi.question] });
+    expect(response.status).toBe(502);
+  });
+
+  test("passes through unclear_topic and no_new_question from the model", async () => {
+    const empty = { question: "", options: [], correctOptionText: "", explanation: "" };
+    parseMock.mockResolvedValueOnce(aiResponse({ status: "unclear_topic", ...empty }));
+    let response = await post({ topic: "אאאא" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "unclear_topic" });
+
+    parseMock.mockResolvedValueOnce(aiResponse({ status: "no_new_question", ...empty }));
+    response = await post({ topic: "חלל" });
+    expect(await response.json()).toEqual({ status: "no_new_question" });
+    expect(parseMock).toHaveBeenCalledTimes(2);
+  });
+
+  test("never logs the topic text", async () => {
+    parseMock.mockRejectedValue(new Error("boom"));
+    await post({ topic: "נושא-סודי" });
+    const logged = JSON.stringify(vi.mocked(console.error).mock.calls);
+    expect(logged).not.toContain("נושא-סודי");
   });
 
   test("returns 504 on an AI timeout", async () => {

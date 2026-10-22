@@ -1,4 +1,4 @@
-import type { AiQuestion } from "@/lib/schemas";
+import { QUESTION_MAX_LENGTH, type AiQuestion } from "@/lib/schemas";
 
 export type ValidQuestion = {
   question: string;
@@ -12,6 +12,22 @@ export function normalizeTopic(topic: string): string {
   return topic.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+// Normalizes a question for duplicate checks: trimmed, lower-cased,
+// punctuation and quote marks removed, inner spaces collapsed.
+export function normalizeQuestion(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[\p{P}\p{S}]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// True when the question matches an already-shown question after normalization.
+export function isDuplicateQuestion(question: string, previousQuestions: string[]): boolean {
+  const normalized = normalizeQuestion(question);
+  return previousQuestions.some((previous) => normalizeQuestion(previous) === normalized);
+}
+
 // Enforces the business rules a JSON schema can't express. Returns a cleaned
 // question, or null when the AI output must be treated as invalid.
 export function validateAiQuestion(ai: AiQuestion): ValidQuestion | null {
@@ -23,6 +39,8 @@ export function validateAiQuestion(ai: AiQuestion): ValidQuestion | null {
   const correctOptionText = ai.correctOptionText.trim();
 
   if (!question || !explanation) return null;
+  // Keeps every shown question within the request limit, so it can be sent back as history.
+  if (question.length > QUESTION_MAX_LENGTH) return null;
   if (options.length !== 4) return null;
   if (options.some((option) => option.length === 0)) return null;
   if (new Set(options).size !== options.length) return null;

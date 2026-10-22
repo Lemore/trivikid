@@ -17,6 +17,19 @@ describe("QuestionRequestSchema", () => {
     expect(QuestionRequestSchema.safeParse({ topic: "א".repeat(51) }).success).toBe(false);
   });
 
+  test("limits previousQuestions to 30 items of at most 300 characters", () => {
+    const parse = (previousQuestions: string[]) =>
+      QuestionRequestSchema.safeParse({ topic: "חלל", previousQuestions }).success;
+    expect(parse(Array.from({ length: 30 }, (_, i) => `שאלה ${i}?`))).toBe(true);
+    expect(parse(Array.from({ length: 31 }, (_, i) => `שאלה ${i}?`))).toBe(false);
+    expect(parse(["א".repeat(300)])).toBe(true);
+    expect(parse(["א".repeat(301)])).toBe(false);
+  });
+
+  test("rejects extra fields", () => {
+    expect(QuestionRequestSchema.safeParse({ topic: "חלל", extra: 1 }).success).toBe(false);
+  });
+
   test("rejects a missing or non-string topic", () => {
     expect(QuestionRequestSchema.safeParse({}).success).toBe(false);
     expect(QuestionRequestSchema.safeParse({ topic: 5 }).success).toBe(false);

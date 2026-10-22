@@ -226,3 +226,20 @@ There is no database, so the only per-environment configuration is environment v
 - **All Hebrew UI strings live in one constants module.** The PRD's suggested wording (e.g., "בואו נשחק!", "שאלה חדשה", "כל הכבוד! תשובה נכונה 🎉", "לא נורא! התשובה הנכונה היא:", "אופס! משהו השתבש. נסו שוב", "לא הצלחנו להבין את הנושא, נסו נושא אחר", "כתבו נושא כדי לקבל שאלה 🙂", "אין חיבור לאינטרנט. התחברו ונסו שוב", "נגמרו לנו שאלות חדשות על הנושא הזה. נסו נושא אחר!") can be refined in one place.
 - **Accessibility basics.** Success and failure are shown with color plus an icon and text, not by color alone. Buttons are large touch targets, and the feedback area is announced to screen readers through an ARIA live region.
 - **Region.** Vercel Functions run in a single default region (`iad1`) ([Vercel Functions limits](https://vercel.com/docs/functions/limitations)). Most of the response time is the AI call itself, so the default is acceptable and needs no change.
+
+## Key decisions (ADRs)
+
+### ADR-1: Duplicate detection by normalized question text
+**Context:** The PRD forbids repeating a question within a visit. The model may return a question that differs from a shown one only in punctuation, quote marks, spacing or letter case.
+**Decision:** The server compares questions after normalization: lower-cased, all Unicode punctuation and symbols removed (including Hebrew ״ ׳), and whitespace collapsed. A duplicate triggers one retry; if the retry is also a duplicate, the server returns `no_new_question`. Generated questions longer than 300 characters are rejected as invalid, so every question the client stores in its history always fits the request limit (≤ 300 characters per item).
+**Consequences:** Exact and near-exact repeats are always caught. Close paraphrases rely on the prompt rule. A rare long question costs a retry.
+
+### ADR-2: Styles for status messages
+**Context:** DESIGN.md defines the success, failure and fun-fact panels but not the look of the error, offline, empty-topic, unclear-topic and no-new-question messages.
+**Decision (product owner's choice):** Problems ("אופס! משהו השתבש. נסו שוב", "אין חיבור לאינטרנט…") use the failure panel (light red, ✕) followed by a secondary-style "נסו שוב" button. Gentle prompts (empty topic, unclear topic, no new question) use the fun-fact panel look (soft yellow, Block Yellow start edge, 💡) with no retry button. The retry button runs the same request as "שאלה חדשה".
+**Consequences:** The screen keeps a single blue primary action, and gentle prompts don't look like mistakes.
+
+### ADR-3: Network failure shown as "no connection"
+**Context:** The PRD requires a friendly no-connection message, but `navigator.onLine` is not always reliable.
+**Decision:** The client shows the no-connection message when `navigator.onLine` is false (no request is sent) and also when `fetch` fails without any response (network error, server unreachable). A client timeout (60s, via `AbortController`) and any HTTP error response show the generic error message.
+**Consequences:** Offline cases are covered even when the browser wrongly reports being online. If the server itself is unreachable while the internet works, the child sees the no-connection message, which still asks them to try again.

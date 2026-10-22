@@ -4,11 +4,19 @@ import { z } from "zod";
 // This module has no server-only imports, so the client can use it too.
 
 export const TOPIC_MAX_LENGTH = 50;
+export const PREVIOUS_QUESTIONS_MAX = 30;
+export const QUESTION_MAX_LENGTH = 300;
 
-export const QuestionRequestSchema = z.object({
-  topic: z.string().trim().min(1).max(TOPIC_MAX_LENGTH),
-  previousQuestions: z.array(z.string()).default([]),
-});
+// Strict: any field other than these is rejected.
+export const QuestionRequestSchema = z
+  .object({
+    topic: z.string().trim().min(1).max(TOPIC_MAX_LENGTH),
+    previousQuestions: z
+      .array(z.string().max(QUESTION_MAX_LENGTH))
+      .max(PREVIOUS_QUESTIONS_MAX)
+      .default([]),
+  })
+  .strict();
 
 export type QuestionRequest = z.input<typeof QuestionRequestSchema>;
 

@@ -1,3 +1,4 @@
+import { TOPIC_MAX_LENGTH } from "@/lib/schemas";
 import { strings } from "@/lib/strings";
 
 type TopicInputProps = {
@@ -18,6 +19,7 @@ export function TopicInput({ value, onChange }: TopicInputProps) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={strings.trivia.topicPlaceholder}
+        maxLength={TOPIC_MAX_LENGTH}
         autoComplete="off"
         enterKeyHint="send"
         className="h-[58px] w-full rounded-control border-[2.5px] border-wood-tan bg-white px-4 text-start text-xl text-ink outline-none placeholder:text-ink/40 focus:border-block-blue focus:ring-4 focus:ring-block-blue/20"

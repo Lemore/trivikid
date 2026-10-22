@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { normalizeTopic, shuffleOptions, validateAiQuestion } from "@/lib/question-rules";
+import {
+  isDuplicateQuestion,
+  normalizeQuestion,
+  normalizeTopic,
+  shuffleOptions,
+  validateAiQuestion,
+} from "@/lib/question-rules";
 import type { AiQuestion } from "@/lib/schemas";
 
 const valid: AiQuestion = {
@@ -36,6 +42,11 @@ describe("validateAiQuestion", () => {
     expect(validateAiQuestion({ ...valid, explanation: "  " })).toBeNull();
   });
 
+  test("rejects a question longer than 300 characters", () => {
+    expect(validateAiQuestion({ ...valid, question: "א".repeat(301) })).toBeNull();
+    expect(validateAiQuestion({ ...valid, question: "א".repeat(300) })).not.toBeNull();
+  });
+
   test("rejects non-ok statuses", () => {
     expect(validateAiQuestion({ ...valid, status: "unclear_topic" })).toBeNull();
   });
@@ -68,5 +79,26 @@ describe("shuffleOptions", () => {
 describe("normalizeTopic", () => {
   test("trims, lower-cases and collapses spaces", () => {
     expect(normalizeTopic("  Star   Wars ")).toBe("star wars");
+  });
+});
+
+describe("normalizeQuestion", () => {
+  test("ignores case, punctuation, quote marks and extra spaces", () => {
+    expect(normalizeQuestion("  מה  שמו של \"צדק\"?! ")).toBe("מה שמו של צדק");
+    expect(normalizeQuestion("מי כתב את ״הארי פוטר״?")).toBe(normalizeQuestion("מי כתב את הארי פוטר"));
+    expect(normalizeQuestion("Who is BATMAN?")).toBe("who is batman");
+  });
+});
+
+describe("isDuplicateQuestion", () => {
+  const previous = ["איזה כוכב לכת הוא הגדול ביותר?", "מהו הכוכב הקרוב ביותר לשמש?"];
+
+  test("detects a repeat that differs only in punctuation or spacing", () => {
+    expect(isDuplicateQuestion("איזה  כוכב לכת הוא הגדול ביותר", previous)).toBe(true);
+  });
+
+  test("allows a genuinely different question", () => {
+    expect(isDuplicateQuestion("כמה ירחים יש למאדים?", previous)).toBe(false);
+    expect(isDuplicateQuestion("כמה ירחים יש למאדים?", [])).toBe(false);
   });
 });
