@@ -47,7 +47,7 @@
   - The layout is correct on a mobile width (360px) and on a desktop width, with no horizontal scrolling.
   - `npm run build`, the linter and `npm test` (Vitest) pass with no errors.
 
-## Milestone 2 — Play a trivia question end-to-end
+## Milestone 2 — Play a trivia question end-to-end ✅
 - **Purpose:** Deliver the core capability: the child enters a topic, gets an AI-generated question with 4 options, answers once, and sees feedback, the correct answer and a fun fact.
 - **Implementation scope:**
   - **User setup (guided):**

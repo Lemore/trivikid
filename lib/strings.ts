@@ -27,6 +27,8 @@ export const strings = {
     title: "טריוויקיד",
     pageTitle: "שאלות טריוויה",
     topicLabel: "על מה תרצו שאלה?",
+    topicPlaceholder: "כתבו נושא…",
+    optionLetters: ["א", "ב", "ג", "ד"],
     newQuestion: "שאלה חדשה",
     loading: "טוען…",
     success: "כל הכבוד! תשובה נכונה 🎉",

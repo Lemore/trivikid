@@ -6,6 +6,7 @@ type Variant = "primary" | "secondary";
 type BlockButtonProps = {
   variant?: Variant;
   href?: string;
+  type?: "button" | "submit";
   onClick?: () => void;
   disabled?: boolean;
   children: ReactNode;
@@ -28,6 +29,7 @@ const disabledStyle = "cursor-not-allowed bg-wood-tan text-white shadow-none";
 export function BlockButton({
   variant = "primary",
   href,
+  type = "button",
   onClick,
   disabled = false,
   children,
@@ -42,7 +44,7 @@ export function BlockButton({
 
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={`${base} ${disabled ? disabledStyle : variants[variant]}`}
